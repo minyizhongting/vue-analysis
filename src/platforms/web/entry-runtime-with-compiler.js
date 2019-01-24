@@ -14,8 +14,8 @@ const idToTemplate = cached(id => {
   return el && el.innerHTML
 })
 
-const mount = Vue.prototype.$mount
-Vue.prototype.$mount = function (
+const mount = Vue.prototype.$mount    // 缓存原型上的$mount方法
+Vue.prototype.$mount = function (   // 再重新定义该方法
   el?: string | Element,
   hydrating?: boolean
 ): Component {
@@ -64,7 +64,7 @@ Vue.prototype.$mount = function (
         mark('compile')
       }
 
-      const { render, staticRenderFns } = compileToFunctions(template, {
+      const { render, staticRenderFns } = compileToFunctions(template, {      // Vue的一个"在线编译"的过程
         shouldDecodeNewlines,
         shouldDecodeNewlinesForHref,
         delimiters: options.delimiters,

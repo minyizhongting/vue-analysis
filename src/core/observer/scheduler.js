@@ -54,7 +54,7 @@ function flushSchedulerQueue () {
   // 目的是
   // 1.Vue中的组件的创建与更新有点类似于事件捕获，都是从最外层向内层延伸，所以要先
   // 调用父组件的创建与更新
-  // 2. userWatcher比renderWatcher创建要早（抱歉并不能给出我的解释，我没理解）
+  // 2. userWatcher比renderWatcher创建要早
   // 3. 如果父组件的watcher调用run时将父组件干掉了，那其子组件的watcher也就没必要调用了
   queue.sort((a, b) => a.id - b.id)
 
@@ -89,13 +89,13 @@ function flushSchedulerQueue () {
 
   // keep copies of post queues before resetting state
   const activatedQueue = activatedChildren.slice()
-  const updatedQueue = queue.slice()
+  const updatedQueue = queue.slice()    // 是更新了的watcher数组
 
   resetSchedulerState()
 
   // call component updated and activated hooks
   callActivatedHooks(activatedQueue)
-  callUpdatedHooks(updatedQueue)
+  callUpdatedHooks(updatedQueue)    // 对数组进行遍历，只有满足当前watcher为vm._watcher以及组件已经mounted这两个条件，才会执行update钩子函数
 
   // devtool hook
   /* istanbul ignore if */
@@ -110,7 +110,7 @@ function callUpdatedHooks (queue) {
     const watcher = queue[i]
     const vm = watcher.vm
     if (vm._watcher === watcher && vm._isMounted) {
-      callHook(vm, 'updated')
+      callHook(vm, 'updated')     // update的执行时机是在FlushSchedulerQueue函数调用的时候
     }
   }
 }

@@ -45,11 +45,11 @@ export function createElement (
 }
 
 export function _createElement (
-  context: Component,
-  tag?: string | Class<Component> | Function | Object,
-  data?: VNodeData,
-  children?: any,
-  normalizationType?: number
+  context: Component,     // VNode的上下文环境
+  tag?: string | Class<Component> | Function | Object,      // 标签
+  data?: VNodeData,     // VNode的数据
+  children?: any,       // 当前VNode的子节点
+  normalizationType?: number    // 子节点规范的类型，类型不同规范的方法就不一样 (主要参考render函数是编译生成还是用户手写)
 ): VNode | Array<VNode> {
   if (isDef(data) && isDef((data: any).__ob__)) {
     process.env.NODE_ENV !== 'production' && warn(
@@ -87,11 +87,13 @@ export function _createElement (
     data.scopedSlots = { default: children[0] }
     children.length = 0
   }
-  if (normalizationType === ALWAYS_NORMALIZE) {
+  // 对children的规范化，children变成一个类型为Vnode的Array
+  if (normalizationType === ALWAYS_NORMALIZE) {     // 根据normalizationType不同
     children = normalizeChildren(children)
   } else if (normalizationType === SIMPLE_NORMALIZE) {
     children = simpleNormalizeChildren(children)
   }
+  // 创建一个VNode实例
   let vnode, ns
   if (typeof tag === 'string') {
     let Ctor
@@ -115,7 +117,8 @@ export function _createElement (
       )
     }
   } else {
-    // direct component options / constructor
+    // direct component options / constructor]
+    // 直接通过createComponent创建vnode
     vnode = createComponent(tag, data, context, children)
   }
   if (Array.isArray(vnode)) {

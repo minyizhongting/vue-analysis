@@ -35,6 +35,8 @@ const sharedPropertyDefinition = {
   set: noop
 }
 
+
+// 作用是把props和data上的属性代理到vm实例上，然后可以通过vm实例访问到相应的属性
 // proxy通过defineProperty实现了代理，把target[sourceKey][key]的读写变成了对target[key]的读写
 // 因此可以在mounted中通过this.message打印出data定义的message
 export function proxy (target: Object, sourceKey: string, key: string) {
@@ -91,7 +93,7 @@ function initProps (vm: Component, propsOptions: Object) {
           vm
         )
       }
-      defineReactive(props, key, value, () => {
+      defineReactive(props, key, value, () => {     // 调用defineReactive把每个prop对应的值变成响应式，可以通过vm._props.xxx访问到props中对应的属性
         if (vm.$parent && !isUpdatingChildComponent) {
           warn(
             `Avoid mutating a prop directly since the value will be ` +
@@ -109,7 +111,7 @@ function initProps (vm: Component, propsOptions: Object) {
     // during Vue.extend(). We only need to proxy props defined at
     // instantiation here.
     if (!(key in vm)) {
-      proxy(vm, `_props`, key)
+      proxy(vm, `_props`, key)      // 通过proxy把vm._props.xxx的访问代理到vm.xxx上
     }
   }
   toggleObserving(true)

@@ -33,6 +33,7 @@ import {
 } from 'weex/runtime/recycle-list/render-component-template'
 
 // inline hooks to be invoked on component VNodes during patch
+// 组件的钩子函数
 const componentVNodeHooks = {
   init (
     vnode: VNodeWithData,
@@ -70,12 +71,12 @@ const componentVNodeHooks = {
       options.children // new children
     )
   },
-
+  // insertedVnodeQueue的添加顺序是先子后父，所有对于同步渲染的子组件而言，mounted钩子函数的执行顺序也是先子后父
   insert (vnode: MountedComponentVNode) {
     const { context, componentInstance } = vnode
     if (!componentInstance._isMounted) {
       componentInstance._isMounted = true
-      callHook(componentInstance, 'mounted')
+      callHook(componentInstance, 'mounted')    // 组件的mounted钩子函数
     }
     if (vnode.data.keepAlive) {
       if (context._isMounted) {
@@ -116,11 +117,15 @@ export function createComponent (
     return
   }
 
-  const baseCtor = context.$options._base
+  // 构造子类构造函数
+  const baseCtor = context.$options._base   
+
+  // scr/core/global-api/index.js initGlobalAPI中，Vue.options._base = Vue
+  // src/core/instance/init.js vm.$options把Vue构造函数的options和用户传入的options做了一层合并
 
   // plain options object: turn it into a constructor
   if (isObject(Ctor)) {
-    Ctor = baseCtor.extend(Ctor)
+    Ctor = baseCtor.extend(Ctor)  // baseCtor实际上就是Vue
   }
 
   // if at this stage it's not a constructor or an async component factory,
@@ -190,9 +195,12 @@ export function createComponent (
   }
 
   // install component management hooks onto the placeholder node
+  // 安装组件钩子函数
+  // 整个installComponentHooks的过程就是把componentVNodeHooks的钩子函数合并到data.hook中，在VNode执行patch的过程中执行相关钩子函数
   installComponentHooks(data)
 
   // return a placeholder vnode
+  // 实例化VNode
   const name = Ctor.options.name || tag
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,

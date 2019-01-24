@@ -31,12 +31,13 @@ extend(Vue.options.directives, platformDirectives)
 extend(Vue.options.components, platformComponents)
 
 // install platform patch function
+// 服务端渲染中，没有真实的浏览器DOM环境，不需要把VNode转换成DOM，因此是个空函数
 Vue.prototype.__patch__ = inBrowser ? patch : noop
 
 // public mount method
 Vue.prototype.$mount = function (
-  el?: string | Element,
-  hydrating?: boolean
+  el?: string | Element,    // 表示挂载的元素
+  hydrating?: boolean       // 与服务端渲染有关
 ): Component {
   el = el && inBrowser ? query(el) : undefined
   return mountComponent(this, el, hydrating)

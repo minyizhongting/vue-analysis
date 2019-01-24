@@ -15,7 +15,11 @@ import { isFalse, isTrue, isDef, isUndef, isPrimitive } from 'shared/util'
 // normalization is needed - if any child is an Array, we flatten the whole
 // thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
 // because functional components already normalize their own children.
+
+// render函数是编译生成的
 export function simpleNormalizeChildren (children: any) {
+  // 理论上编译生成的children都是VNode类型，但有一个例外，函数式组件返回的是一个数组而不是根节点
+  // 需要将整个children数组打平，使深度只有一层
   for (let i = 0; i < children.length; i++) {
     if (Array.isArray(children[i])) {
       return Array.prototype.concat.apply([], children)
@@ -28,6 +32,10 @@ export function simpleNormalizeChildren (children: any) {
 // e.g. <template>, <slot>, v-for, or when the children is provided by user
 // with hand-written render functions / JSX. In such cases a full normalization
 // is needed to cater to all possible types of children values.
+
+// 调用场景有2种
+// 1. render函数是用户手写的
+// 2. 编译slot、v-for时，产生嵌套数组的情况
 export function normalizeChildren (children: any): ?Array<VNode> {
   return isPrimitive(children)
     ? [createTextVNode(children)]
