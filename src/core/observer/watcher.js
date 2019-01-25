@@ -45,17 +45,17 @@ export default class Watcher {
   sync: boolean;
   dirty: boolean;
   active: boolean;
-  deps: Array<Dep>;
+  deps: Array<Dep>;       // deps和newDeps表示Watcher实例持有的Dep实例的数组
   newDeps: Array<Dep>;
-  depIds: SimpleSet;
+  depIds: SimpleSet;      // 代表deps和newDeps的id Set
   newDepIds: SimpleSet;
   getter: Function;
   value: any;
 
   constructor (
     vm: Component,
-    expOrFn: string | Function,   // 更新函数
-    cb: Function,
+    expOrFn: string | Function,   // render watcher - updateComponent  computed watcher - 方法
+    cb: Function,   // 只有user watcher用，是对应的回调
     options?: ?Object,        
     isRenderWatcher?: boolean
   ) {
@@ -101,6 +101,7 @@ export default class Watcher {
         )
       }
     }
+    // 实例化一个Watcher时，首先进入watcher的构造函数逻辑，会执行this.get()方法，进入get函数
     this.value = this.lazy      
       ? undefined
       : this.get()    // 执行this.get()方法
@@ -114,6 +115,10 @@ export default class Watcher {
     let value
     const vm = this.vm
     try {
+      // 对于renderWatcher，this.getter对应就是updateComponent函数，实际上就是在执行vm._update(vm._render(), hydrating)
+      // 这个过程中会对vm上的数据进行访问，触发数据对象的getter
+      // 每个对象值的getter都持有一个dep，触发getter时会调用dep.depend()方法，会执行Dep.target.addDep(this)
+      // computed watcher，this.getter是对应的方法
       value = this.getter.call(vm, vm)    // 最核心的，执行updateComponent方法，通知vue vdom的diff算法更新视图
     } catch (e) {
       if (this.user) {
@@ -124,11 +129,11 @@ export default class Watcher {
     } finally {
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
-      if (this.deep) {
+      if (this.deep) {    // 递归访问value，触发它所有子项的getter
         traverse(value)
       }
-      popTarget()
-      this.cleanupDeps()
+      popTarget()   // vm的数据依赖收集已经完成，对于的Dep.target也要恢复
+      this.cleanupDeps()    // 依赖清空
     }
     return value
   }
@@ -138,7 +143,7 @@ export default class Watcher {
    */
   addDep (dep: Dep) {
     const id = dep.id
-    if (!this.newDepIds.has(id)) {
+    if (!this.newDepIds.has(id)) {    // 保证同一个数据不会被添加多次
       this.newDepIds.add(id)        
       this.newDeps.push(dep)        // 将dep对象加入到watcher对象的newDeps队列中
       if (!this.depIds.has(id)) {
@@ -150,22 +155,25 @@ export default class Watcher {
   /**
    * Clean up for dependency collection.
    */
+  // 每次数据变化都会重新render，vm._render()方法会再次执行，并再次触发数据的getters
+  // 所有Watcher在构造函数中初始化2个Dep实例数组
+  // newDeps表示新添加的Dep实例数组，而Deps表示上一次添加的Dep实例数组
   cleanupDeps () {
     let i = this.deps.length
-    while (i--) {
-      const dep = this.deps[i]
-      if (!this.newDepIds.has(dep.id)) {
-        dep.removeSub(this)
+    while (i--) {     // 遍历deps
+      const dep = this.deps[i]    
+      if (!this.newDepIds.has(dep.id)) {    // 每次添加完新的订阅，会移除掉旧的订阅，保证不去调用不需要的数据的订阅的回调
+        dep.removeSub(this)   // 移除无用的watcher
       }
     }
-    let tmp = this.depIds
+    let tmp = this.depIds         // newDepIds和depIds交换
     this.depIds = this.newDepIds
     this.newDepIds = tmp
-    this.newDepIds.clear()
-    tmp = this.deps
+    this.newDepIds.clear()    // 清除newDepIds
+    tmp = this.deps               // newDeps和deps交换
     this.deps = this.newDeps
     this.newDeps = tmp
-    this.newDeps.length = 0
+    this.newDeps.length = 0   // 清除newDeps
   }
 
   /**
@@ -194,7 +202,7 @@ export default class Watcher {
   run () {
     if (this.active) {
       const value = this.get()    // 此处会调用watcher.get()方法，也是数据驱动视图更新的核心方法
-      if (
+      if (  // 如果满足新旧值不等、新值是对象类型、deep模式任何一个条件，就执行watcher的回调
         value !== this.value ||
         // Deep watchers and watchers on Object/Arrays should fire even
         // when the value is the same, because the value may
@@ -207,7 +215,8 @@ export default class Watcher {
         this.value = value
         if (this.user) {    // user watcher
           try {
-            this.cb.call(this.vm, value, oldValue) 
+            this.cb.call(this.vm, value, oldValue)    // watcher的回调执行时，第一个第二个参数传入新值value和旧值oldValue
+            // 这也是我们添加自定义watcher时，能在回调函数的参数中拿到新旧值的原因
           } catch (e) {
             handleError(e, this.vm, `callback for watcher "${this.expression}"`)
           }

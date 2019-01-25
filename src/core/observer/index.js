@@ -72,15 +72,15 @@ export class Observer {
     this.value = value
     this.dep = new Dep()    // 新建一个Dep对象，用来收集依赖
     this.vmCount = 0
-    def(value, '__ob__', this)
+    def(value, '__ob__', this)    // 把自身实例添加到数据对象value的__ob__属性上
     if (Array.isArray(value)) {
-      const augment = hasProto
+      const augment = hasProto    // 判断对象中是否存在__proto__
         ? protoAugment
         : copyAugment
       augment(value, arrayMethods, arrayKeys)
       this.observeArray(value)    // 若是数组执行observerArray
     } else {
-      this.walk(value)    // 若是json执行walk方法
+      this.walk(value)    // 否则纯对象执行walk方法
     }
   }
 
@@ -162,6 +162,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
 /**
  * Define a reactive property on an Object.
  */
+// 功能是定义一个响应式对象，给对象动态添加getter和setter
 // defineReactive用到了Object.defineProperty方法，主要作用是set和get函数
 // vue针对data中的所有属性都会new一个dep对象，dep对象里存放所有依赖此属性的watcher对象，此处用到了发布/订阅模式
 // dep和watcher分别是发布者和订阅者，每当data中的属性变化，dep对象就会通知所有依赖的watcher去更新dom
@@ -187,7 +188,7 @@ export function defineReactive (
   const setter = property && property.set
 
   // 对象的子对象递归进行observe并返回子节点的observer对象
-  let childOb = !shallow && observe(val)
+  let childOb = !shallow && observe(val)    // shallow为false时，会将新设置的值变成一个响应式对象
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
@@ -230,6 +231,8 @@ export function defineReactive (
  * triggers change notification if the property doesn't
  * already exist.
  */
+// 使用Object.defineProperty实现响应式的对象，当去给这个对象添加一个新的属性时，是不能够触发它的setter的
+// Vue为了解决这个问题，定义了一个全局API方法Vue.set 
 export function set (target: Array<any> | Object, key: any, val: any): any {
   if (process.env.NODE_ENV !== 'production' &&
     (isUndef(target) || isPrimitive(target))
@@ -241,7 +244,7 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     target.splice(key, 1, val)
     return val
   }
-  if (key in target && !(key in Object.prototype)) {
+  if (key in target && !(key in Object.prototype)) {  // 若key已经存在于target中，则直接赋值返回
     target[key] = val
     return val
   }
@@ -253,12 +256,12 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     )
     return val
   }
-  if (!ob) {
+  if (!ob) {  // 不存在，说明target不是一个响应式的对象
     target[key] = val
     return val
   }
-  defineReactive(ob.value, key, val)
-  ob.dep.notify()
+  defineReactive(ob.value, key, val)    // 把新添加的属性变成响应式对象
+  ob.dep.notify()   // 手动触发依赖通知
   return val
 }
 

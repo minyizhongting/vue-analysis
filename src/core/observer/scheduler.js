@@ -23,6 +23,7 @@ let index = 0
 /**
  * Reset the scheduler's state.
  */
+// 状态恢复，吧流程控制状态的一些变量恢复到初始值，把watcher队列清空
 function resetSchedulerState () {
   index = queue.length = activatedChildren.length = 0
   has = {}
@@ -56,6 +57,13 @@ function flushSchedulerQueue () {
   // 调用父组件的创建与更新
   // 2. userWatcher比renderWatcher创建要早
   // 3. 如果父组件的watcher调用run时将父组件干掉了，那其子组件的watcher也就没必要调用了
+
+
+
+  // 对队列做了从小到大的排序
+  // 1. 组件的更新由父到子，因为父组件的创建过程是先于子的，所以watcher的创建也是先父后子，执行属性也是先父后子
+  // 2. 用户的自定义watcher要优先于渲染watcher执行，因为user watcher是在render watcher之前创建的
+  // 3. 若组件在父组件的watcher执行期间被销毁，name它对应的watcher执行都可以被跳过，所以父组件的watcher应该先执行
   queue.sort((a, b) => a.id - b.id)
 
   // do not cache length because more watchers might be pushed
@@ -68,7 +76,7 @@ function flushSchedulerQueue () {
     // 清掉标记
     has[id] = null
     // 更新dom
-    watcher.run()
+    watcher.run()   // 遍历后，拿到对应的watcher，执行watcher.run()
     // in dev build, check and stop circular updates.
     // dev环境下，监测是否为死循环
     if (process.env.NODE_ENV !== 'production' && has[id] != null) {
@@ -138,12 +146,14 @@ function callActivatedHooks (queue) {
  * Jobs with duplicate IDs will be skipped unless it's
  * pushed when the queue is being flushed.
  */
+ // 引入队列的概念，派发更新时，不会每次数据改变都触发watcher的回调
+ // 而是把watcher先添加到一个队列里，然后在nextTick后执行flushSchedulerQueue
 // 数据发生变化，watcher更新视图 异步更新 
 // Vue异步执行DOM更新，只要观察到数据变化，vue将开启一个队列，并缓冲在同一事件循环中发生的所有数据改变
 export function queueWatcher (watcher: Watcher) {
   const id = watcher.id
   // 判断这个watcher是否已经放入过队列
-  if (has[id] == null) {
+  if (has[id] == null) {    // has对象保证同一个Watcher值添加一次
     has[id] = true
     if (!flushing) {
       queue.push(watcher)     // 将当前watcher放入队列
@@ -157,7 +167,7 @@ export function queueWatcher (watcher: Watcher) {
       queue.splice(i + 1, 0, watcher)
     }
     // queue the flush
-    if (!waiting) {
+    if (!waiting) {   // waiting保证对nextTick(flushSchedulerQueue)只调用一次
       waiting = true
       nextTick(flushSchedulerQueue)   // 将flushSchedulerQueue(冲洗队列)放入nextTick
     }

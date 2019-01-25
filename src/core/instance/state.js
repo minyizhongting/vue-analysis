@@ -192,7 +192,7 @@ function initComputed (vm: Component, computed: Object) {
 
   // 遍历传入的computed方法
   for (const key in computed) {
-    const userDef = computed[key]   // cpmputed对象中的方法
+    const userDef = computed[key]   // computed对象中的方法
     const getter = typeof userDef === 'function' ? userDef : userDef.get
     if (process.env.NODE_ENV !== 'production' && getter == null) {
       warn(
@@ -206,7 +206,7 @@ function initComputed (vm: Component, computed: Object) {
       // create internal watcher for the computed property.
       watchers[key] = new Watcher(
         vm,
-        getter || noop,   // 对应要执行的函数
+        getter || noop,   // 执行computed对象中的方法
         noop,
         computedWatcherOptions    // 实现computed watcher的关键
       )

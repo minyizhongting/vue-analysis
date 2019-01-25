@@ -46,6 +46,7 @@ export default class Dep {
 // the current target watcher being evaluated.
 // this is globally unique because there could be only one
 // watcher being evaluated at any time.
+// 静态属性target，是一个全局唯一的Watcher，同一时间只能有一个全局的Watcher被计算
 Dep.target = null   // 收集完依赖后，将Dep.target设置为null，防止继续收集依赖
 const targetStack = []
 
