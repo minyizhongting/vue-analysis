@@ -64,6 +64,7 @@ Vue.prototype.$mount = function (   // 再重新定义该方法
         mark('compile')
       }
 
+      // compileToFunctions方法就是把模板template编译生成render以及staticRenderFns
       const { render, staticRenderFns } = compileToFunctions(template, {      // Vue的一个"在线编译"的过程
         shouldDecodeNewlines,
         shouldDecodeNewlinesForHref,

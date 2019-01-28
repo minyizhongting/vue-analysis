@@ -61,6 +61,8 @@ export function createASTElement (
 /**
  * Convert HTML string to AST.
  */
+// 输入是template和options，输出是AST的根节点
+// template是模板字符串，options是和平台相关的一些配置
 export function parse (
   template: string,
   options: CompilerOptions
@@ -106,6 +108,7 @@ export function parse (
     }
   }
 
+  // 解析HTML模板
   parseHTML(template, {
     warn,
     expectHTML: options.expectHTML,

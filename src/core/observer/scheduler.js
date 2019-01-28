@@ -23,7 +23,7 @@ let index = 0
 /**
  * Reset the scheduler's state.
  */
-// 状态恢复，吧流程控制状态的一些变量恢复到初始值，把watcher队列清空
+// 状态恢复，把流程控制状态的一些变量恢复到初始值，把watcher队列清空
 function resetSchedulerState () {
   index = queue.length = activatedChildren.length = 0
   has = {}

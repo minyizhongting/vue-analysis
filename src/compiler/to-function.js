@@ -20,6 +20,7 @@ function createFunction (code, errors) {
 export function createCompileToFunctionFn (compile: Function): Function {
   const cache = Object.create(null)
 
+  // 接受三个参数，编译模板template、编译配置ioptions和Vue实例vm
   return function compileToFunctions (
     template: string,
     options?: CompilerOptions,
@@ -55,7 +56,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
       return cache[key]
     }
 
-    // compile
+    // compile  核心的编译过程
     const compiled = compile(template, options)
 
     // check compilation errors/tips
