@@ -33,15 +33,16 @@ export default class VueRouter {
   afterHooks: Array<?AfterNavigationHook>;
 
   constructor (options: RouterOptions = {}) {
-    this.app = null
-    this.apps = []
-    this.options = options
+    this.app = null           // 根Vue实例 
+    this.apps = []            // 保存$options.router属性的Vue实例
+    this.options = options    // 保存传入的路由配置
     this.beforeHooks = []
     this.resolveHooks = []
     this.afterHooks = []
-    this.matcher = createMatcher(options.routes || [], this)
+    this.matcher = createMatcher(options.routes || [], this)      // 路由匹配器
 
     let mode = options.mode || 'hash'
+    // 在浏览器不支持history.pushState的情况下，根据传入的fallback配置参数，觉得是否回退到hash模式
     this.fallback = mode === 'history' && !supportsPushState && options.fallback !== false
     if (this.fallback) {
       mode = 'hash'
@@ -49,7 +50,7 @@ export default class VueRouter {
     if (!inBrowser) {
       mode = 'abstract'
     }
-    this.mode = mode
+    this.mode = mode      // 路由创建的模式
 
     switch (mode) {
       case 'history':
@@ -80,21 +81,21 @@ export default class VueRouter {
     return this.history && this.history.current
   }
 
-  init (app: any /* Vue component instance */) {
+  init (app: any /* Vue component instance */) {    // 传参是Vue实例
     process.env.NODE_ENV !== 'production' && assert(
       install.installed,
       `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
       `before creating root instance.`
     )
 
-    this.apps.push(app)
+    this.apps.push(app)     // 存储到apps中
 
     // main app already initialized.
     if (this.app) {
       return
     }
 
-    this.app = app
+    this.app = app        // 只有根实例会保存到this.app中
 
     const history = this.history
 

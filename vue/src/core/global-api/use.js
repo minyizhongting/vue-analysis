@@ -3,9 +3,6 @@
 import { toArray } from '../util/index'
 
 // 通过Vue.use(plugin)，就是在执行install方法
-
-// vue-router的install方法会给每个组件注入beforeCreate和destroyed钩子函数，在beforeCreate做一些私有属性定义和路由初始化工作
-
 export function initUse (Vue: GlobalAPI) {
   Vue.use = function (plugin: Function | Object) {
     // this._installedPlugins，它存储所有注册过的plugin
