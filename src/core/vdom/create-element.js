@@ -44,6 +44,7 @@ export function createElement (
   return _createElement(context, tag, data, children, normalizationType)
 }
 
+// 创建VNode
 export function _createElement (
   context: Component,     // VNode的上下文环境
   tag?: string | Class<Component> | Function | Object,      // 标签

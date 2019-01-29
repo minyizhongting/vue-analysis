@@ -236,11 +236,13 @@ export function defineComputed (
 ) {
   const shouldCache = !isServerRendering()    // 是否是服务端渲染 若不是，说明计算属性是需要缓存的
   if (typeof userDef === 'function') {    // 是，就说明是常规computed用法
+    // 若userDef是function，给sharedPropertyDefinition.get也就是当前key的getter赋值createComputedGetter(key)
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
       : userDef
     sharedPropertyDefinition.set = noop
   } else {
+    // 否则就使用userDef.get和userDef.set赋值
     sharedPropertyDefinition.get = userDef.get
       ? shouldCache && userDef.cache !== false
         ? createComputedGetter(key)

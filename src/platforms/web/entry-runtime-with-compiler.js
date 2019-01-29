@@ -14,6 +14,7 @@ const idToTemplate = cached(id => {
   return el && el.innerHTML
 })
 
+// compiler版本的$mount实现
 const mount = Vue.prototype.$mount    // 缓存原型上的$mount方法
 Vue.prototype.$mount = function (   // 再重新定义该方法
   el?: string | Element,

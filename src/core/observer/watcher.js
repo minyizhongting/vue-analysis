@@ -63,7 +63,7 @@ export default class Watcher {
     if (isRenderWatcher) {
       vm._watcher = this
     }
-    vm._watchers.push(this)
+    vm._watchers.push(this)     // vm._watchers是专门用来监听vm上数据变化然后重新渲染的
     // options
     // 当走到initData方法时，options不存在
     // 当走到initComputed方法时，computedWatcherOptions = {lazy: true}

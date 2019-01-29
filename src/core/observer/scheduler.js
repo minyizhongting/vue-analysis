@@ -117,7 +117,7 @@ function callUpdatedHooks (queue) {
   while (i--) {
     const watcher = queue[i]
     const vm = watcher.vm
-    if (vm._watcher === watcher && vm._isMounted) {
+    if (vm._watcher === watcher && vm._isMounted) {   // 只有vm._watchers的回调执行完毕后，才会执行updated钩子函数
       callHook(vm, 'updated')     // update的执行时机是在FlushSchedulerQueue函数调用的时候
     }
   }

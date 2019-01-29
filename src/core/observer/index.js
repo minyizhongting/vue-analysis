@@ -197,7 +197,7 @@ export function defineReactive (
       if (Dep.target) {   // 若存在当前的Watcher对象，对其进行依赖收集
         dep.depend()    // 收集依赖，确保只有是用了的值才会被收集
         if (childOb) {
-          childOb.dep.depend()      // 并对其最对象进行依赖收集
+          childOb.dep.depend()      // 并对其子对象进行依赖收集
           if (Array.isArray(value)) { // 若是数组，则对数组进行依赖收集，，若数组的子成员还是数组，则对其遍历
             dependArray(value)
           }

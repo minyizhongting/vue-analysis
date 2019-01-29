@@ -153,6 +153,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
   }
 }
 
+// $mount方法会调用mountComponent方法
 export function mountComponent (
   vm: Component,
   el: ?Element,
@@ -179,7 +180,7 @@ export function mountComponent (
       }
     }
   }
-  callHook(vm, 'beforeMount')   // 执行vm._render()函数渲染VNo的之前，执行beforeMount钩子函数
+  callHook(vm, 'beforeMount')   // 执行vm._render()函数渲染VNode之前，执行beforeMount钩子函数
 
   let updateComponent
   /* istanbul ignore if */
