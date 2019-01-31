@@ -24,8 +24,8 @@ export function install (Vue) {
 
   // vue-router最重要的一步，就是利用Vue.mixin把beforeCreate和destroyed钩子函数注入到每一个组件中
   Vue.mixin({
-    beforeCreate () {
-      if (isDef(this.$options.router)) {
+    beforeCreate () {   // 实例化VueRouter后，在new Vue时会把router作为配置的属性传入
+      if (isDef(this.$options.router)) {  // 组件在执行beforeCreate钩子函数时，如果传入了router实例，都会执行router.init方法
         this._routerRoot = this
         this._router = this.$options.router
         this._router.init(this)

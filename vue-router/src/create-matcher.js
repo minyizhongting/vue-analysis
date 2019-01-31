@@ -14,10 +14,10 @@ export type Matcher = {
 };
 
 export function createMatcher (
-  routes: Array<RouteConfig>,
-  router: VueRouter
+  routes: Array<RouteConfig>,     // 用户定义的路由配置
+  router: VueRouter               // new VueRouter返回的实例
 ): Matcher {
-  const { pathList, pathMap, nameMap } = createRouteMap(routes)
+  const { pathList, pathMap, nameMap } = createRouteMap(routes)   // 创建一个路由映射表
 
   function addRoutes (routes) {
     createRouteMap(routes, pathList, pathMap, nameMap)
@@ -166,6 +166,7 @@ export function createMatcher (
     return createRoute(record, location, redirectedFrom, router)
   }
 
+  // matcher是一个对象，对外暴露了match和addRoutes方法
   return {
     match,
     addRoutes

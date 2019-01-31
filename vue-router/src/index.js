@@ -97,7 +97,7 @@ export default class VueRouter {
 
     this.app = app        // 只有根实例会保存到this.app中
 
-    const history = this.history
+    const history = this.history      // 拿到当前的this.history，根据不同类型执行不同逻辑
 
     if (history instanceof HTML5History) {
       history.transitionTo(history.getCurrentLocation())

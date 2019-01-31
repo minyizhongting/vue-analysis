@@ -4,11 +4,11 @@ import Regexp from 'path-to-regexp'
 import { cleanPath } from './util/path'
 import { assert, warn } from './util/warn'
 
-export function createRouteMap (
+export function createRouteMap (          // 目标是把用户的路由配置转换成一张路由映射表
   routes: Array<RouteConfig>,
-  oldPathList?: Array<string>,
-  oldPathMap?: Dictionary<RouteRecord>,
-  oldNameMap?: Dictionary<RouteRecord>
+  oldPathList?: Array<string>,    // 存储所有的path
+  oldPathMap?: Dictionary<RouteRecord>,     // 表示一个path到RouteRecord的映射关系
+  oldNameMap?: Dictionary<RouteRecord>      // 表示name到RouteRecord的映射关系
 ): {
   pathList: Array<string>;
   pathMap: Dictionary<RouteRecord>;
@@ -70,13 +70,14 @@ function addRouteRecord (
     pathToRegexpOptions.sensitive = route.caseSensitive
   }
 
-  const record: RouteRecord = {
-    path: normalizedPath,
-    regex: compileRouteRegex(normalizedPath, pathToRegexpOptions),
-    components: route.components || { default: route.component },
-    instances: {},
+  // 创建RouteRecord
+  const record: RouteRecord = {       // 它的创建是通过遍历routes为每一个route执行addRouteRecord方法生成一条记录
+    path: normalizedPath,     // 规范化后的路径，它会根据parent的path做计算
+    regex: compileRouteRegex(normalizedPath, pathToRegexpOptions),      // 是一个正则表达式的扩展
+    components: route.components || { default: route.component },       // 是个对象，我们在配置中写的component实际这里会被转换成{components:route.component}
+    instances: {},      // 组件的实例
     name,
-    parent,
+    parent,         // 父的RouteRecord
     matchAs,
     redirect: route.redirect,
     beforeEnter: route.beforeEnter,
@@ -88,7 +89,7 @@ function addRouteRecord (
         : { default: route.props }
   }
 
-  if (route.children) {
+  if (route.children) {   
     // Warn if route is named, does not redirect and has a default child route.
     // If users navigate to this route by name, the default child will
     // not be rendered (GH Issue #629)
@@ -104,6 +105,7 @@ function addRouteRecord (
         )
       }
     }
+    // 若配置了children，则递归执行addRouteRecord方法，并把当前的record作为parent传入
     route.children.forEach(child => {
       const childMatchAs = matchAs
         ? cleanPath(`${matchAs}/${child.path}`)
@@ -133,11 +135,13 @@ function addRouteRecord (
     })
   }
 
+  // 为pathList和pathMap各添加一条记录
   if (!pathMap[record.path]) {
     pathList.push(record.path)
     pathMap[record.path] = record
   }
 
+  // 若在路由配置中配置了name，则给nameMap添加一条记录
   if (name) {
     if (!nameMap[name]) {
       nameMap[name] = record
@@ -149,6 +153,12 @@ function addRouteRecord (
       )
     }
   }
+
+  // pathList、pathMap、nameMap
+  // 遍历整个routes过程中去执行addRouteRecord，会不断添加数据，经过整个createRouteMap方法的执行，我们得到pathList、pathMap、nameMap
+  // 其中pathList是为了记录路由配置中的所有path
+  // pathMap和nameMap都是为了通过path和name能快速查到对应的RouteRecord
+
 }
 
 function compileRouteRegex (path: string, pathToRegexpOptions: PathToRegexpOptions): RouteRegExp {
