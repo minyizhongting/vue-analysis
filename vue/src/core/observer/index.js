@@ -151,7 +151,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     Object.isExtensible(value) &&
     !value._isVue
   ) {
-    ob = new Observer(value)      // 把data对象编程可观察者对象
+    ob = new Observer(value)      // 把data对象变成可观察者对象
   }
   if (asRootData && ob) {
     ob.vmCount++
@@ -195,10 +195,10 @@ export function defineReactive (
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {   // 若存在当前的Watcher对象，对其进行依赖收集
-        dep.depend()    // 收集依赖，确保只有是用了的值才会被收集
+        dep.depend()    // 收集依赖，确保只有使用了的值才会被收集
         if (childOb) {
           childOb.dep.depend()      // 并对其子对象进行依赖收集
-          if (Array.isArray(value)) { // 若是数组，则对数组进行依赖收集，，若数组的子成员还是数组，则对其遍历
+          if (Array.isArray(value)) { // 若是数组，则对数组进行依赖收集，若数组的子成员还是数组，则对其遍历
             dependArray(value)
           }
         }

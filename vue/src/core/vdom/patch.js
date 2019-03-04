@@ -1,8 +1,4 @@
-/**
- * Virtual DOM patching algorithm based on Snabbdom by
- * Simon Friis Vindum (@paldepind)
- * Licensed under the MIT License
- * https://github.com/paldepind/snabbdom/blob/master/LICENSE
+/** * Virtual DOM patching algorithm based on Snabbdom by * Simon Friis Vindum (@paldepind) * Licensed under the MIT License * https://github.com/paldepind/snabbdom/blob/master/LICENSE
  *
  * modified by Evan You (@yyx990803)
  *
@@ -50,8 +46,7 @@ function sameVnode (a, b) {
     )
   )
 }
-
-// 新旧vnode的tag，key，isComment都相同，同时定义或未定义data，且若标签为input则type必须相同，则认为新旧两个vnode相同，接着进行patchVnode操作。
+// 新旧vnode的key，tag，isComment都相同，同时定义或未定义data，且若标签为input则type必须相同，则认为新旧两个vnode相同，接着进行patchVnode操作。
 
 function sameInputType (a, b) {
   if (a.tag !== 'input') return true
@@ -779,7 +774,12 @@ export function createPatchFunction (backend) {
     }
   }
 
-  // 只需要判断两个vnode是否相同，如果相同，则进行patchVnode操作，否则直接用vnode替换oldVnode
+  // 传统的diff算法，为了找到最小变化，需要逐层的去搜索比较，时间复杂度会达到o(n^3)的级别，代价非常高
+  // 考虑节点变化很少是跨层次的，vdom采取的是简化的思路，只比较同层节点
+  // 若不同，也不复用，直接将从父节点开始的子树全部删除，然后重新创建节点添加到新的位置
+  // 若父节点没变化，则比较所有同层的子节点，对子节点进行删除、创建、移位操作
+
+  // patch只需要判断两个vnode是否相同，如果相同，则进行patchVnode操作，否则直接用vnode替换oldVnode
   // patch => patchVnode => updateChildren (diff)
   return function patch (oldVnode, vnode, hydrating, removeOnly, parentElm, refElm) {
     // vnode不存在，oldVnode存在，直接销毁旧节点
@@ -789,7 +789,7 @@ export function createPatchFunction (backend) {
     }
 
     let isInitialPatch = false
-    // 记录被插入的vnode队列
+    // 记录被插入的vnode队列，用于批触发insert
     const insertedVnodeQueue = []
 
     // 若旧节点不存在，直接创建新节点

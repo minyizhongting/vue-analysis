@@ -233,7 +233,7 @@ export default class Watcher {
    */
   // state.js中，initComputed方法，初始化computed watcher，lazy设置为true，dirty等于lazy也为true
   // 只有dirty为true时，才会执行watcher.evaluate()
-  // 因此只要不更新计算属性中的data属性的值，在第一次获取值后，watcher.lazy始终未false，也就永远不会执行watcher.evaluate()
+  // 因此只要不更新计算属性中的data属性的值，在第一次获取值后，watcher.dirty始终为false，也就永远不会执行watcher.evaluate()
   // 所以这个计算属性永远不会重新求值，一直使用上一次获得(所谓的缓存)的值
   // 一旦data属性的值发生变化，会触发update()导致页面重新渲染，重新initComputed，那么this.dirty = this.lazy = true，计算属性就会重新取值
 

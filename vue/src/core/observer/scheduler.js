@@ -153,7 +153,7 @@ function callActivatedHooks (queue) {
 export function queueWatcher (watcher: Watcher) {
   const id = watcher.id
   // 判断这个watcher是否已经放入过队列
-  if (has[id] == null) {    // has对象保证同一个Watcher值添加一次
+  if (has[id] == null) {    // has对象保证同一个Watcher只添加一次
     has[id] = true
     if (!flushing) {
       queue.push(watcher)     // 将当前watcher放入队列
